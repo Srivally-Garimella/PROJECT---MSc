@@ -1,0 +1,129 @@
+# Model Configuration for TemporalGuard-RAG
+# Configures LLM and embedding models
+
+# OpenAI LLM Configuration
+llm:
+  provider: "openai"
+  
+  models:
+    primary:
+      name: "gpt-4"
+      description: "Primary model for complex reasoning"
+      temperature: 0.0
+      max_tokens: 4096
+      
+    fast:
+      name: "gpt-3.5-turbo"
+      description: "Faster model for simple tasks"
+      temperature: 0.0
+      max_tokens: 2048
+      
+    preview:
+      name: "gpt-4-turbo-preview"
+      description: "Latest GPT-4 for testing"
+      temperature: 0.0
+      max_tokens: 4096
+      
+  # Rate limiting
+  rate_limits:
+    requests_per_minute: 60
+    tokens_per_minute: 90000
+    
+  # Retry configuration
+  retry:
+    max_retries: 3
+    initial_delay_seconds: 1
+    exponential_backoff: true
+
+# Embedding Models Configuration
+embeddings:
+  # Primary embedding model
+  primary:
+    name: "sentence-transformers/all-mpnet-base-v2"
+    dimensions: 768
+    description: "Best quality general-purpose embeddings"
+    batch_size: 32
+    
+  # Alternative models
+  alternatives:
+    minilm:
+      name: "sentence-transformers/all-MiniLM-L6-v2"
+      dimensions: 384
+      description: "Fast and efficient"
+      batch_size: 64
+      
+    bge_large:
+      name: "BAAI/bge-large-en"
+      dimensions: 1024
+      description: "High quality for retrieval"
+      batch_size: 16
+      
+    finance:
+      name: "sentence-transformers/paraphrase-MiniLM-L6-v2"
+      dimensions: 384
+      description: "Good for paraphrase detection"
+      batch_size: 64
+      
+  # Embedding generation settings
+  settings:
+    normalize: true
+    show_progress: true
+    device: "auto"  # auto, cpu, cuda
+
+# Vector Store Configuration
+vector_store:
+  provider: "chromadb"
+  
+  chromadb:
+    collection_name: "temporal_financial_docs"
+    persist_directory: "data/processed/vector_db"
+    
+    # HNSW index parameters
+    hnsw:
+      space: "cosine"  # cosine, l2, ip
+      construction_ef: 128
+      search_ef: 64
+      M: 16
+      
+  # Search parameters
+  search:
+    default_k: 5
+    max_k: 50
+    use_relevance_scores: true
+
+# Tokenizer Configuration
+tokenizer:
+  model: "cl100k_base"  # OpenAI's tiktoken
+  max_chunk_tokens: 500
+  overlap_tokens: 50
+
+# Model Selection Rules
+selection_rules:
+  # Use primary model for these tasks
+  use_primary:
+    - "complex_reasoning"
+    - "multi_hop"
+    - "verification"
+    - "synthesis"
+    
+  # Use fast model for these tasks
+  use_fast:
+    - "simple_retrieval"
+    - "formatting"
+    - "classification"
+
+# Cost Tracking
+cost_tracking:
+  enabled: true
+  log_all_calls: true
+  
+  rates:  # per 1K tokens (as of 2024)
+    gpt-4:
+      input: 0.03
+      output: 0.06
+    gpt-4-turbo-preview:
+      input: 0.01
+      output: 0.03
+    gpt-3.5-turbo:
+      input: 0.0005
+      output: 0.0015

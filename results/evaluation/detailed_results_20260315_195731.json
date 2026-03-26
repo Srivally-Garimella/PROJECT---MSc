@@ -1,0 +1,278 @@
+{
+  "temporal": [
+    {
+      "test_id": "T001",
+      "passed": false,
+      "score": 0.0,
+      "expected": "has_bias=True",
+      "actual": "detected_bias=False",
+      "details": "Error parsing date: Could not parse date: 20240101",
+      "execution_time": 0.0009951591491699219
+    },
+    {
+      "test_id": "T002",
+      "passed": false,
+      "score": 0.0,
+      "expected": "has_bias=True",
+      "actual": "detected_bias=False",
+      "details": "Error parsing date: Could not parse date: 20231015",
+      "execution_time": 6.413459777832031e-05
+    },
+    {
+      "test_id": "T003",
+      "passed": false,
+      "score": 0.0,
+      "expected": "has_bias=True",
+      "actual": "detected_bias=False",
+      "details": "Error parsing date: Could not parse date: 20231201",
+      "execution_time": 2.86102294921875e-05
+    },
+    {
+      "test_id": "T004",
+      "passed": false,
+      "score": 0.0,
+      "expected": "has_bias=True",
+      "actual": "detected_bias=False",
+      "details": "Error parsing date: Could not parse date: 20230715",
+      "execution_time": 2.6226043701171875e-05
+    },
+    {
+      "test_id": "T005",
+      "passed": true,
+      "score": 1.0,
+      "expected": "has_bias=False",
+      "actual": "detected_bias=False",
+      "details": "Error parsing date: Could not parse date: 20231001",
+      "execution_time": 2.574920654296875e-05
+    },
+    {
+      "test_id": "T006",
+      "passed": true,
+      "score": 1.0,
+      "expected": "has_bias=False",
+      "actual": "detected_bias=False",
+      "details": "Error parsing date: Could not parse date: 20230301",
+      "execution_time": 2.5272369384765625e-05
+    },
+    {
+      "test_id": "T007",
+      "passed": true,
+      "score": 1.0,
+      "expected": "has_bias=False",
+      "actual": "detected_bias=False",
+      "details": "Error parsing date: Could not parse date: 20230701",
+      "execution_time": 2.47955322265625e-05
+    },
+    {
+      "test_id": "T008",
+      "passed": true,
+      "score": 1.0,
+      "expected": "has_bias=False",
+      "actual": "detected_bias=False",
+      "details": "Error parsing date: Could not parse date: 20231001",
+      "execution_time": 2.47955322265625e-05
+    }
+  ],
+  "uncertainty": [
+    {
+      "test_id": "U001",
+      "passed": false,
+      "score": 0,
+      "expected": "actual=112,010,000,000",
+      "actual": "predicted=0 CI=[0, 0]",
+      "details": "Confidence: very_low",
+      "execution_time": 0.006052970886230469
+    },
+    {
+      "test_id": "U002",
+      "passed": false,
+      "score": 0,
+      "expected": "actual=111,482,000,000",
+      "actual": "predicted=0 CI=[0, 0]",
+      "details": "Confidence: very_low",
+      "execution_time": 0.00019860267639160156
+    },
+    {
+      "test_id": "U003",
+      "passed": false,
+      "score": 0,
+      "expected": "actual=14,503,000,000",
+      "actual": "predicted=0 CI=[0, 0]",
+      "details": "Confidence: very_low",
+      "execution_time": 0.00012350082397460938
+    },
+    {
+      "test_id": "U004",
+      "passed": false,
+      "score": 0,
+      "expected": "actual=101,832,000,000",
+      "actual": "predicted=0 CI=[0, 0]",
+      "details": "Confidence: very_low",
+      "execution_time": 0.00010323524475097656
+    },
+    {
+      "test_id": "U005",
+      "passed": false,
+      "score": 0,
+      "expected": "actual=136,162,000,000",
+      "actual": "predicted=0 CI=[0, 0]",
+      "details": "Confidence: very_low",
+      "execution_time": 0.00010180473327636719
+    },
+    {
+      "test_id": "U006",
+      "passed": false,
+      "score": 0,
+      "expected": "actual=182,447,000,000",
+      "actual": "predicted=0 CI=[0, 0]",
+      "details": "Confidence: very_low",
+      "execution_time": 9.298324584960938e-05
+    },
+    {
+      "test_id": "U007",
+      "passed": false,
+      "score": 0,
+      "expected": "actual=57,048,000,000",
+      "actual": "predicted=0 CI=[0, 0]",
+      "details": "Confidence: very_low",
+      "execution_time": 8.940696716308594e-05
+    },
+    {
+      "test_id": "U008",
+      "passed": false,
+      "score": 0,
+      "expected": "actual=-147,782,000,000",
+      "actual": "predicted=0 CI=[0, 0]",
+      "details": "Confidence: very_low",
+      "execution_time": 8.869171142578125e-05
+    },
+    {
+      "test_id": "U009",
+      "passed": false,
+      "score": 0,
+      "expected": "actual=17,176,000,000",
+      "actual": "predicted=0 CI=[0, 0]",
+      "details": "Confidence: very_low",
+      "execution_time": 0.00010156631469726562
+    },
+    {
+      "test_id": "U010",
+      "passed": false,
+      "score": 0,
+      "expected": "actual=-45,154,000,000",
+      "actual": "predicted=0 CI=[0, 0]",
+      "details": "Confidence: very_low",
+      "execution_time": 0.0005311965942382812
+    },
+    {
+      "test_id": "U011",
+      "passed": false,
+      "score": 0,
+      "expected": "actual=332,238,000,000",
+      "actual": "predicted=0 CI=[0, 0]",
+      "details": "Confidence: very_low",
+      "execution_time": 0.0001430511474609375
+    },
+    {
+      "test_id": "U012",
+      "passed": false,
+      "score": 0,
+      "expected": "actual=28,844,000,000",
+      "actual": "predicted=0 CI=[0, 0]",
+      "details": "Confidence: very_low",
+      "execution_time": 0.0001285076141357422
+    },
+    {
+      "test_id": "U013",
+      "passed": false,
+      "score": 0,
+      "expected": "actual=51,970,000,000",
+      "actual": "predicted=0 CI=[0, 0]",
+      "details": "Confidence: very_low",
+      "execution_time": 0.00011372566223144531
+    },
+    {
+      "test_id": "U014",
+      "passed": false,
+      "score": 0,
+      "expected": "actual=189,031,000,000",
+      "actual": "predicted=0 CI=[0, 0]",
+      "details": "Confidence: very_low",
+      "execution_time": 0.0001780986785888672
+    },
+    {
+      "test_id": "U015",
+      "passed": false,
+      "score": 0,
+      "expected": "actual=12,299,000,000",
+      "actual": "predicted=0 CI=[0, 0]",
+      "details": "Confidence: very_low",
+      "execution_time": 0.00011515617370605469
+    },
+    {
+      "test_id": "U016",
+      "passed": false,
+      "score": 0,
+      "expected": "actual=33,939,000,000",
+      "actual": "predicted=0 CI=[0, 0]",
+      "details": "Confidence: very_low",
+      "execution_time": 0.00010657310485839844
+    }
+  ],
+  "hallucination": [
+    {
+      "test_id": "H001",
+      "passed": false,
+      "score": 0.0,
+      "expected": "hallucination=True",
+      "actual": "detected=False, trust_score=0.00",
+      "details": "unverifiable",
+      "execution_time": 0.001077413558959961
+    },
+    {
+      "test_id": "H002",
+      "passed": false,
+      "score": 0.0,
+      "expected": "hallucination=True",
+      "actual": "detected=False, trust_score=0.00",
+      "details": "unverifiable",
+      "execution_time": 0.0001583099365234375
+    },
+    {
+      "test_id": "H003",
+      "passed": false,
+      "score": 0.0,
+      "expected": "hallucination=True",
+      "actual": "detected=False, trust_score=0.00",
+      "details": "unverifiable",
+      "execution_time": 0.0003349781036376953
+    },
+    {
+      "test_id": "H004",
+      "passed": true,
+      "score": 0.0,
+      "expected": "hallucination=False",
+      "actual": "detected=False, trust_score=0.00",
+      "details": "unverifiable",
+      "execution_time": 3.838539123535156e-05
+    },
+    {
+      "test_id": "H005",
+      "passed": true,
+      "score": 0.0,
+      "expected": "hallucination=False",
+      "actual": "detected=False, trust_score=0.00",
+      "details": "unverifiable",
+      "execution_time": 3.24249267578125e-05
+    },
+    {
+      "test_id": "H006",
+      "passed": true,
+      "score": 0.0,
+      "expected": "hallucination=False",
+      "actual": "detected=False, trust_score=0.00",
+      "details": "unverifiable",
+      "execution_time": 4.4345855712890625e-05
+    }
+  ]
+}

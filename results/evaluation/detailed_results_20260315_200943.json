@@ -1,0 +1,278 @@
+{
+  "temporal": [
+    {
+      "test_id": "T001",
+      "passed": true,
+      "score": 1.0,
+      "expected": "has_bias=True",
+      "actual": "detected_bias=True",
+      "details": "LOOK-AHEAD BIAS DETECTION\n--------------------------------------------------\nQuery: \"What was Apple's revenue in Q4 2024?\"\nAnalysis Date: 2024-01-01\n\nStatus: \u274c BIAS DETECTED\n\n\ud83d\udea8 LOOK-AHEAD BIAS ISSUES:",
+      "execution_time": 0.0005750656127929688
+    },
+    {
+      "test_id": "T002",
+      "passed": true,
+      "score": 1.0,
+      "expected": "has_bias=True",
+      "actual": "detected_bias=True",
+      "details": "LOOK-AHEAD BIAS DETECTION\n--------------------------------------------------\nQuery: \"Compare 2024 earnings to 2023 for Microsoft\"\nAnalysis Date: 2023-10-15\n\nStatus: \u274c BIAS DETECTED\n\n\ud83d\udea8 LOOK-AHEAD BIAS ",
+      "execution_time": 0.00015091896057128906
+    },
+    {
+      "test_id": "T003",
+      "passed": true,
+      "score": 1.0,
+      "expected": "has_bias=True",
+      "actual": "detected_bias=True",
+      "details": "LOOK-AHEAD BIAS DETECTION\n--------------------------------------------------\nQuery: \"What did the CEO say about AI strategy in the 2024 annual report?\"\nAnalysis Date: 2023-12-01\n\nStatus: \u274c BIAS DETECT",
+      "execution_time": 0.0003483295440673828
+    },
+    {
+      "test_id": "T004",
+      "passed": true,
+      "score": 1.0,
+      "expected": "has_bias=True",
+      "actual": "detected_bias=True",
+      "details": "LOOK-AHEAD BIAS DETECTION\n--------------------------------------------------\nQuery: \"What was Q2 2023 EPS?\"\nAnalysis Date: 2023-07-15\n\nStatus: \u274c BIAS DETECTED\n\n\ud83d\udea8 LOOK-AHEAD BIAS ISSUES:\n  - Q2 2023 da",
+      "execution_time": 0.00010180473327636719
+    },
+    {
+      "test_id": "T005",
+      "passed": true,
+      "score": 1.0,
+      "expected": "has_bias=False",
+      "actual": "detected_bias=False",
+      "details": "LOOK-AHEAD BIAS DETECTION\n--------------------------------------------------\nQuery: \"What was Apple's fiscal 2022 revenue?\"\nAnalysis Date: 2023-10-01\n\nStatus: \u2705 CLEAN\n\n\u2705 No look-ahead bias detected. Q",
+      "execution_time": 7.343292236328125e-05
+    },
+    {
+      "test_id": "T006",
+      "passed": true,
+      "score": 1.0,
+      "expected": "has_bias=False",
+      "actual": "detected_bias=False",
+      "details": "LOOK-AHEAD BIAS DETECTION\n--------------------------------------------------\nQuery: \"Summarize Microsoft's risk factors from the 2022 10-K\"\nAnalysis Date: 2023-03-01\n\nStatus: \u2705 CLEAN\n\n\u2705 No look-ahead ",
+      "execution_time": 6.532669067382812e-05
+    },
+    {
+      "test_id": "T007",
+      "passed": true,
+      "score": 1.0,
+      "expected": "has_bias=False",
+      "actual": "detected_bias=False",
+      "details": "LOOK-AHEAD BIAS DETECTION\n--------------------------------------------------\nQuery: \"What was Q1 2023 gross margin?\"\nAnalysis Date: 2023-07-01\n\nStatus: \u26a0\ufe0f WARNINGS\n\n\u26a0\ufe0f WARNINGS (review carefully):\n  -",
+      "execution_time": 6.771087646484375e-05
+    },
+    {
+      "test_id": "T008",
+      "passed": true,
+      "score": 1.0,
+      "expected": "has_bias=False",
+      "actual": "detected_bias=False",
+      "details": "LOOK-AHEAD BIAS DETECTION\n--------------------------------------------------\nQuery: \"What is the expected revenue growth?\"\nAnalysis Date: 2023-10-01\n\nStatus: \u26a0\ufe0f WARNINGS\n\n\u26a0\ufe0f WARNINGS (review carefully",
+      "execution_time": 6.29425048828125e-05
+    }
+  ],
+  "uncertainty": [
+    {
+      "test_id": "U001",
+      "passed": "True",
+      "score": 0.91694526574134,
+      "expected": "actual=112,010,000,000",
+      "actual": "predicted=102,707,039,216 CI=[-12,113,830,703, 217,527,909,134]",
+      "details": "Confidence: low",
+      "execution_time": 0.011442422866821289
+    },
+    {
+      "test_id": "U002",
+      "passed": "True",
+      "score": 0.865255860855918,
+      "expected": "actual=111,482,000,000",
+      "actual": "predicted=126,503,546,120 CI=[-36,862,391,546, 289,869,483,786]",
+      "details": "Confidence: low",
+      "execution_time": 0.0007333755493164062
+    },
+    {
+      "test_id": "U003",
+      "passed": "True",
+      "score": 0.937140910001035,
+      "expected": "actual=14,503,000,000",
+      "actual": "predicted=13,591,354,618 CI=[-13,810,156,429, 40,992,865,664]",
+      "details": "Confidence: low",
+      "execution_time": 0.0004143714904785156
+    },
+    {
+      "test_id": "U004",
+      "passed": "True",
+      "score": 0.9442514885770538,
+      "expected": "actual=101,832,000,000",
+      "actual": "predicted=96,155,017,585 CI=[-13,240,929,850, 205,550,965,019]",
+      "details": "Confidence: low",
+      "execution_time": 0.0004258155822753906
+    },
+    {
+      "test_id": "U005",
+      "passed": "True",
+      "score": 0.9332805353254728,
+      "expected": "actual=136,162,000,000",
+      "actual": "predicted=127,077,344,251 CI=[-64,431,749,087, 318,586,437,589]",
+      "details": "Confidence: very_low",
+      "execution_time": 0.0003654956817626953
+    },
+    {
+      "test_id": "U006",
+      "passed": "True",
+      "score": 0.9732104990248374,
+      "expected": "actual=182,447,000,000",
+      "actual": "predicted=187,334,664,084 CI=[36,164,936,539, 338,504,391,630]",
+      "details": "Confidence: medium",
+      "execution_time": 0.0003609657287597656
+    },
+    {
+      "test_id": "U007",
+      "passed": "True",
+      "score": 0.9137348493708708,
+      "expected": "actual=57,048,000,000",
+      "actual": "predicted=61,969,254,313 CI=[-1,666,326,796, 125,604,835,422]",
+      "details": "Confidence: low",
+      "execution_time": 0.00045418739318847656
+    },
+    {
+      "test_id": "U008",
+      "passed": "False",
+      "score": 0,
+      "expected": "actual=-147,782,000,000",
+      "actual": "predicted=7,909,614,023 CI=[-8,396,789,122, 24,216,017,167]",
+      "details": "Confidence: very_low",
+      "execution_time": 0.0005970001220703125
+    },
+    {
+      "test_id": "U009",
+      "passed": "True",
+      "score": 0.7493332684861839,
+      "expected": "actual=17,176,000,000",
+      "actual": "predicted=12,870,548,220 CI=[-926,778,759, 26,667,875,198]",
+      "details": "Confidence: low",
+      "execution_time": 0.0004763603210449219
+    },
+    {
+      "test_id": "U010",
+      "passed": "False",
+      "score": 0.14529454984552848,
+      "expected": "actual=-45,154,000,000",
+      "actual": "predicted=-6,560,630,104+0j CI=[-21,640,528,912+0j, 8,519,268,705+0j]",
+      "details": "Confidence: very_low",
+      "execution_time": 0.0004885196685791016
+    },
+    {
+      "test_id": "U011",
+      "passed": "True",
+      "score": 0.9746076924100868,
+      "expected": "actual=332,238,000,000",
+      "actual": "predicted=340,674,289,489 CI=[48,088,320,899, 633,260,258,079]",
+      "details": "Confidence: medium",
+      "execution_time": 0.0004208087921142578
+    },
+    {
+      "test_id": "U012",
+      "passed": "True",
+      "score": 0.8451208450267138,
+      "expected": "actual=28,844,000,000",
+      "actual": "predicted=33,311,334,346 CI=[-4,967,280,333, 71,589,949,025]",
+      "details": "Confidence: low",
+      "execution_time": 0.0004317760467529297
+    },
+    {
+      "test_id": "U013",
+      "passed": "True",
+      "score": 0.9695953864651241,
+      "expected": "actual=51,970,000,000",
+      "actual": "predicted=53,550,127,765 CI=[-16,707,901,263, 123,808,156,794]",
+      "details": "Confidence: low",
+      "execution_time": 0.0003960132598876953
+    },
+    {
+      "test_id": "U014",
+      "passed": "True",
+      "score": 0.9549585201773024,
+      "expected": "actual=189,031,000,000",
+      "actual": "predicted=197,545,235,972 CI=[34,052,231,732, 361,038,240,213]",
+      "details": "Confidence: medium",
+      "execution_time": 0.00037980079650878906
+    },
+    {
+      "test_id": "U015",
+      "passed": "True",
+      "score": 0.5687960822803405,
+      "expected": "actual=12,299,000,000",
+      "actual": "predicted=17,602,376,984 CI=[-8,221,799,196, 43,426,553,164]",
+      "details": "Confidence: very_low",
+      "execution_time": 0.00039505958557128906
+    },
+    {
+      "test_id": "U016",
+      "passed": "True",
+      "score": 0.9369604575179855,
+      "expected": "actual=33,939,000,000",
+      "actual": "predicted=31,799,500,968 CI=[3,342,691,842, 60,256,310,093]",
+      "details": "Confidence: medium",
+      "execution_time": 0.0003762245178222656
+    }
+  ],
+  "hallucination": [
+    {
+      "test_id": "H001",
+      "passed": true,
+      "score": 0.0,
+      "expected": "hallucination=True",
+      "actual": "detected=True, trust_score=0.00",
+      "details": "hallucination",
+      "execution_time": 0.0011272430419921875
+    },
+    {
+      "test_id": "H002",
+      "passed": true,
+      "score": 0.0,
+      "expected": "hallucination=True",
+      "actual": "detected=True, trust_score=0.00",
+      "details": "hallucination",
+      "execution_time": 0.0003046989440917969
+    },
+    {
+      "test_id": "H003",
+      "passed": true,
+      "score": 0.0,
+      "expected": "hallucination=True",
+      "actual": "detected=True, trust_score=0.00",
+      "details": "hallucination",
+      "execution_time": 0.00045561790466308594
+    },
+    {
+      "test_id": "H004",
+      "passed": false,
+      "score": 0.0,
+      "expected": "hallucination=False",
+      "actual": "detected=True, trust_score=0.00",
+      "details": "hallucination",
+      "execution_time": 5.125999450683594e-05
+    },
+    {
+      "test_id": "H005",
+      "passed": true,
+      "score": 0.5,
+      "expected": "hallucination=False",
+      "actual": "detected=False, trust_score=0.50",
+      "details": "deviation",
+      "execution_time": 0.00013136863708496094
+    },
+    {
+      "test_id": "H006",
+      "passed": false,
+      "score": 0.0,
+      "expected": "hallucination=False",
+      "actual": "detected=True, trust_score=0.00",
+      "details": "hallucination",
+      "execution_time": 7.772445678710938e-05
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "temporal": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "look_ahead_detection_rate": 1.0,
+    "n_tests": 8
+  },
+  "uncertainty": {
+    "coverage_90": 0.875,
+    "calibration_error": 0.025000000000000022,
+    "mean_interval_width": 

@@ -1,0 +1,34 @@
+{
+    "tech": ["AAPL", "MSFT", "NVDA", "META", "GOOGL"],
+    "finance": ["JPM", "GS", "BAC", "WFC"],
+    "energy": ["XOM", "CVX"],
+    "healthcare": ["JNJ", "UNH"],
+    "consumer": ["AMZN", "WMT"],
+    "metadata": {
+        "description": "Company tickers organized by sector for TemporalGuard-RAG",
+        "temporal_windows": {
+            "training": {
+                "start": "2018-01-01",
+                "end": "2022-12-31",
+                "description": "5 years of historical data for training"
+            },
+            "validation": {
+                "start": "2023-01-01",
+                "end": "2023-06-30",
+                "description": "Q1-Q2 2023 for validation"
+            },
+            "test": {
+                "start": "2023-07-01",
+                "end": "2024-06-30",
+                "description": "Q3 2023 - Q2 2024 for testing"
+            },
+            "look_ahead_test": {
+                "start": "2024-07-01",
+                "end": "2024-12-31",
+                "description": "Post-Q2 2024 for look-ahead bias testing"
+            }
+        },
+        "created_date": "2024-01-01",
+        "version": "1.0"
+    }
+}

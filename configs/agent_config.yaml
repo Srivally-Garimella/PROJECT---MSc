@@ -1,0 +1,171 @@
+# Agent Configuration for TemporalGuard-RAG
+# Configures multi-agent system behavior and parameters
+
+system:
+  name: "TemporalGuard-RAG Multi-Agent System"
+  version: "1.0.0"
+  default_model: "gpt-4"
+  temperature: 0.0
+  max_retries: 3
+  timeout_seconds: 120
+
+# Document Retrieval Agent
+document_agent:
+  name: "DocumentRetrievalAgent"
+  description: "Retrieves SEC filings with temporal constraints"
+  enabled: true
+  
+  retrieval:
+    default_n_results: 5
+    max_n_results: 20
+    similarity_threshold: 0.7
+    
+  temporal:
+    enforce_cutoff: true
+    require_cutoff_date: true
+    default_filing_lag_days: 45
+    
+  sources:
+    - "10-K"
+    - "10-Q"
+    - "8-K"
+    
+  prompts:
+    system: |
+      You are a financial document retrieval specialist working within a temporal-aware RAG system.
+      Your job is to find relevant information from SEC filings while STRICTLY respecting temporal boundaries.
+      
+      CRITICAL RULES:
+      1. NEVER retrieve documents filed after the cutoff_date
+      2. Always specify the cutoff_date in your search
+      3. Cite the filing date of each document you return
+      4. If no cutoff_date is provided, refuse to search
+
+# Calculation Agent
+calculation_agent:
+  name: "CalculationAgent"
+  description: "Performs financial calculations using XBRL data"
+  enabled: true
+  
+  calculations:
+    supported_ratios:
+      - "ROE"  # Return on Equity
+      - "ROA"  # Return on Assets
+      - "debt_ratio"
+      - "profit_margin"
+      - "revenue_growth"
+      - "eps"
+      - "pe_ratio"
+      - "current_ratio"
+      - "quick_ratio"
+      
+    precision:
+      ratios: 4
+      percentages: 2
+      currency: 2
+      
+  data_sources:
+    primary: "xbrl_structured"
+    fallback: "sec_filings"
+    
+  validation:
+    require_source_citation: true
+    show_calculation_steps: true
+    flag_missing_data: true
+
+# Verification Agent
+verification_agent:
+  name: "VerificationAgent"
+  description: "Fact-checks claims against source documents"
+  enabled: true
+  
+  verification:
+    confidence_levels:
+      high: 0.9
+      medium: 0.7
+      low: 0.5
+      
+    checks:
+      - "source_match"
+      - "numerical_accuracy"
+      - "temporal_consistency"
+      - "cross_reference"
+      
+  thresholds:
+    min_supporting_docs: 1
+    max_discrepancy_percent: 5.0
+    require_xbrl_verification: true
+
+# Temporal Agent
+temporal_agent:
+  name: "TemporalAgent"
+  description: "Enforces temporal consistency and prevents look-ahead bias"
+  enabled: true
+  
+  temporal_rules:
+    # Filing deadlines (days after period end)
+    filing_deadlines:
+      "10-K": 60  # Large accelerated filers
+      "10-Q": 40  # Large accelerated filers
+      "8-K": 4    # Business days
+      
+    # Default filing lag for safety margin
+    default_lag_days: 45
+    
+    # Market data availability
+    market_data_lag_days: 1
+    
+  bias_detection:
+    check_future_dates: true
+    check_forward_looking: true
+    check_anachronisms: true
+    flag_projection_language: true
+    
+  keywords:
+    forward_looking:
+      - "will be"
+      - "is expected"
+      - "anticipate"
+      - "forecast"
+      - "project"
+      - "estimate"
+      - "plan to"
+      - "intend to"
+
+# Orchestrator
+orchestrator:
+  name: "MultiAgentOrchestrator"
+  description: "Coordinates agent workflow for comprehensive analysis"
+  
+  workflow:
+    # Standard workflow order
+    default_sequence:
+      - "temporal_agent"      # Always validate temporal constraints first
+      - "document_agent"      # Retrieve relevant documents
+      - "calculation_agent"   # Compute metrics if needed
+      - "verification_agent"  # Fact-check before final answer
+      
+    # When to use calculation agent
+    calculation_triggers:
+      - "ratio"
+      - "growth"
+      - "margin"
+      - "calculate"
+      - "compute"
+      - "percentage"
+      - "return"
+      - "eps"
+      
+  synthesis:
+    include_citations: true
+    include_confidence: true
+    include_caveats: true
+    max_response_length: 2000
+
+# Audit Trail
+audit:
+  enabled: true
+  log_all_agent_actions: true
+  include_timestamps: true
+  include_model_info: true
+  retention_days: 90

@@ -1,0 +1,28 @@
+{
+  "temporal": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "look_ahead_detection_rate": 1.0,
+    "n_tests": 8
+  },
+  "uncertainty": {
+    "coverage_90": 0.875,
+    "calibration_error": 0.025000000000000022,
+    "mean_interval_width": "(2.6057137332031357+0j)",
+    "n_tests": 16
+  },
+  "hallucination": {
+    "precision": 0.6,
+    "recall": 1.0,
+    "f1": 0.7499999999999999,
+    "grounding_accuracy": 0.6666666666666666,
+    "n_tests": 6
+  },
+  "end_to_end": {
+    "accuracy": 0.0,
+    "groundedness": 0.0,
+    "avg_response_time": 0.0,
+    "n_tests": 0
+  }
+}

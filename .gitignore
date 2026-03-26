@@ -1,0 +1,137 @@
+# TemporalGuard-RAG .gitignore
+
+# ═══════════════════════════════════════════════════════════════
+# Python
+# ═══════════════════════════════════════════════════════════════
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Type checkers
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ═══════════════════════════════════════════════════════════════
+# Environment
+# ═══════════════════════════════════════════════════════════════
+.env
+.env.local
+.env.*.local
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ═══════════════════════════════════════════════════════════════
+# Data directories (large files)
+# ═══════════════════════════════════════════════════════════════
+data/raw/
+data/processed/
+data/chroma_db/
+data/audit/
+data/provenance/
+data/security/
+data/evaluation/benchmark_results.json
+
+# Keep directory structure
+!data/.gitkeep
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# ═══════════════════════════════════════════════════════════════
+# IDE
+# ═══════════════════════════════════════════════════════════════
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ═══════════════════════════════════════════════════════════════
+# Jupyter Notebooks
+# ═══════════════════════════════════════════════════════════════
+.ipynb_checkpoints
+*.ipynb
+
+# ═══════════════════════════════════════════════════════════════
+# OS
+# ═══════════════════════════════════════════════════════════════
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ═══════════════════════════════════════════════════════════════
+# Logs
+# ═══════════════════════════════════════════════════════════════
+*.log
+logs/
+
+# ═══════════════════════════════════════════════════════════════
+# Models (large files)
+# ═══════════════════════════════════════════════════════════════
+models/
+*.ckpt
+*.pt
+*.pth
+*.bin
+*.safetensors
+
+# ═══════════════════════════════════════════════════════════════
+# Misc
+# ═══════════════════════════════════════════════════════════════
+*.bak
+*.tmp
+*.temp
+analysis_result.json

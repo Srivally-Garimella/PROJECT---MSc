@@ -1,0 +1,194 @@
+# Evaluation Configuration for TemporalGuard-RAG
+# Configures benchmarking and metrics
+
+evaluation:
+  name: "TemporalGuard-RAG Evaluation Suite"
+  version: "1.0.0"
+
+# Test Categories
+categories:
+  temporal_consistency:
+    name: "Temporal Consistency Tests"
+    description: "Tests for look-ahead bias prevention"
+    weight: 0.35
+    enabled: true
+    
+    tests:
+      - basic_cutoff
+      - future_quarter
+      - filing_lag
+      - forward_looking
+      - anachronism
+      
+    metrics:
+      - bias_detection_rate
+      - temporal_precision
+      - filtering_accuracy
+      
+  retrieval_accuracy:
+    name: "Retrieval Accuracy Tests"
+    description: "Tests for document retrieval quality"
+    weight: 0.25
+    enabled: true
+    
+    tests:
+      - document_type
+      - temporal_filtering
+      - relevance_ranking
+      
+    metrics:
+      - precision_at_k
+      - recall
+      - mrr
+      - ndcg
+      
+  numerical_accuracy:
+    name: "Numerical Accuracy Tests"
+    description: "Tests for calculation precision"
+    weight: 0.20
+    enabled: true
+    
+    tests:
+      - ratio_calculation
+      - growth_rate
+      - aggregation
+      
+    metrics:
+      - exact_match
+      - within_tolerance
+      - source_accuracy
+      
+  hallucination_resistance:
+    name: "Hallucination Resistance Tests"
+    description: "Tests for factual grounding"
+    weight: 0.20
+    enabled: true
+    
+    tests:
+      - fabrication_detection
+      - source_attribution
+      - confidence_calibration
+      
+    metrics:
+      - hallucination_rate
+      - groundedness_score
+      - citation_accuracy
+
+# Benchmark Settings
+benchmarks:
+  test_file: "data/evaluation/benchmark_cases.json"
+  results_dir: "results/benchmarks"
+  
+  # Execution settings
+  execution:
+    parallel: false
+    timeout_seconds: 300
+    max_retries: 2
+    
+  # Pass criteria
+  thresholds:
+    temporal_consistency: 0.90
+    retrieval_accuracy: 0.80
+    numerical_accuracy: 0.85
+    hallucination_resistance: 0.80
+    overall: 0.80
+
+# Baseline Comparisons
+baselines:
+  enabled: true
+  
+  systems:
+    standard_rag:
+      name: "Standard RAG (No Temporal)"
+      description: "Basic RAG without temporal awareness"
+      enabled: true
+      
+    no_rag:
+      name: "LLM Only (No Retrieval)"
+      description: "Pure LLM without document retrieval"
+      enabled: true
+      
+    single_agent:
+      name: "Single Agent RAG"
+      description: "RAG with one general agent"
+      enabled: false
+
+# Metrics Configuration
+metrics:
+  # Retrieval metrics
+  retrieval:
+    k_values: [1, 3, 5, 10]
+    relevance_threshold: 0.7
+    
+  # Accuracy metrics
+  accuracy:
+    numerical_tolerance: 0.05  # 5% tolerance
+    date_tolerance_days: 1
+    
+  # Temporal metrics
+  temporal:
+    strict_mode: true
+    allow_same_day: false
+    
+  # Quality metrics
+  quality:
+    min_citation_count: 1
+    confidence_calibration: true
+
+# Reporting
+reporting:
+  generate_html: true
+  generate_csv: true
+  generate_json: true
+  
+  include:
+    - summary_statistics
+    - per_category_breakdown
+    - individual_test_results
+    - baseline_comparison
+    - visualizations
+    
+  visualizations:
+    - radar_chart
+    - bar_comparison
+    - timeline
+    - confusion_matrix
+
+# Ablation Studies
+ablation:
+  enabled: true
+  
+  components:
+    temporal_agent:
+      name: "Without Temporal Agent"
+      disable: ["temporal_agent"]
+      expected_impact: "temporal_consistency"
+      
+    verification_agent:
+      name: "Without Verification Agent"
+      disable: ["verification_agent"]
+      expected_impact: "numerical_accuracy"
+      
+    provenance:
+      name: "Without Provenance Tracking"
+      disable: ["provenance_tracker"]
+      expected_impact: "security"
+      
+    adversarial_filter:
+      name: "Without Adversarial Filter"
+      disable: ["adversarial_filter"]
+      expected_impact: "robustness"
+
+# Data Splits
+data_splits:
+  train:
+    start_date: "2018-01-01"
+    end_date: "2022-12-31"
+    
+  validation:
+    start_date: "2023-01-01"
+    end_date: "2023-06-30"
+    
+  test:
+    start_date: "2023-07-01"
+    end_date: "2024-06-30"
