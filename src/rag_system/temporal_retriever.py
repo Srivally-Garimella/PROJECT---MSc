@@ -28,11 +28,13 @@ class TemporalRetriever:
     - Multi-period retrieval
     """
     
-    # SEC filing deadlines (days after period end)
-    FILING_DEADLINES = {
-        '10-K': 60,  # 60 days for large accelerated filers
-        '10-Q': 40,  # 40 days for large accelerated filers
-        '8-K': 4     # 4 business days
+    # SEC filing deadlines by filer status (days after period end)
+    # Reference: https://www.sec.gov/corpfin/form-10-k-10-q-filing-deadlines
+    FILER_DEADLINES = {
+        'Large Accelerated': {'10-K': 60, '10-Q': 40, '8-K': 4},
+        'Accelerated': {'10-K': 75, '10-Q': 40, '8-K': 4},
+        'Non-accelerated': {'10-K': 90, '10-Q': 45, '8-K': 4},
+        'Default': {'10-K': 60, '10-Q': 45, '8-K': 4}
     }
     
     # Typical filing lag (conservative estimate)
@@ -49,8 +51,32 @@ class TemporalRetriever:
             vector_store = TemporalVectorStore()
             
         self.vector_store = vector_store
+        self.metadata_dir = Path("data/raw/xbrl_structured")
         
-        logger.info("Initialized Temporal Retriever")
+        logger.info("Initialized Temporal Retriever with dynamic lag support")
+        
+    def _get_filer_status(self, ticker: str = None) -> str:
+        """
+        Determine filer status for a ticker.
+        
+        Looks for metadata in data/raw/xbrl_structured/ticker_metadata.json
+        """
+        if not ticker:
+            return 'Default'
+            
+        ticker = ticker.upper()
+        metadata_path = self.metadata_dir / "ticker_metadata.json"
+        
+        if metadata_path.exists():
+            try:
+                with open(metadata_path, 'r') as f:
+                    metadata = json.load(f)
+                    return metadata.get(ticker, {}).get('filer_status', 'Large Accelerated')
+            except Exception as e:
+                logger.warning(f"Error reading metadata for {ticker}: {e}")
+                
+        # Fallback to Large Accelerated for most S&P 500 companies
+        return 'Large Accelerated'
         
     def calculate_pit_cutoff(self, 
                             query_date: str,
@@ -99,8 +125,18 @@ class TemporalRetriever:
         else:
             query_dt = datetime.strptime(query_date, '%Y%m%d')
             
-        # Get filing lag
-        filing_lag = self.FILING_DEADLINES.get(filing_type, self.DEFAULT_FILING_LAG)
+        # Get filer status and appropriate lag
+        from .vector_store import TemporalVectorStore
+        ticker = getattr(self, '_current_ticker', None)
+        status = self._get_filer_status(ticker)
+        
+        deadlines = self.FILER_DEADLINES.get(status, self.FILER_DEADLINES['Default'])
+        filing_lag = deadlines.get(filing_type, self.DEFAULT_FILING_LAG)
+        
+        if ticker:
+            logger.info(f"Applying {status} deadlines for {ticker}: {filing_type}={filing_lag}d")
+        else:
+            logger.debug(f"Applying default deadlines: {filing_type}={filing_lag}d")
         
         # Calculate the period end that would be available
         # A filing made on query_date would be for a period ending ~lag days before
@@ -145,6 +181,9 @@ class TemporalRetriever:
         Returns:
             Dictionary with results and temporal metadata
         """
+        # Set current ticker for lag calculation
+        self._current_ticker = ticker
+        
         # Calculate PiT cutoff
         cutoff_date = self.calculate_pit_cutoff(query_date, filing_type)
         

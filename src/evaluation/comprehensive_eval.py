@@ -372,10 +372,10 @@ class UncertaintyCalibrationEvaluator:
             if in_interval:
                 within_ci += 1
             
-            # Track interval width (relative)
+            # Track interval width (relative). Force real float for stable JSON output.
             if estimate.point_estimate != 0:
                 rel_width = (estimate.upper_bound - estimate.lower_bound) / abs(estimate.point_estimate)
-                interval_widths.append(rel_width)
+                interval_widths.append(float(getattr(rel_width, "real", rel_width)))
             
             # Calculate score based on how close prediction was
             if estimate.point_estimate != 0:
@@ -397,7 +397,7 @@ class UncertaintyCalibrationEvaluator:
         # Calculate calibration metrics
         coverage = within_ci / len(test_cases) if test_cases else 0
         calibration_error = abs(coverage - 0.90)  # Target is 90% coverage
-        mean_width = np.mean(interval_widths) if interval_widths else 0
+        mean_width = float(np.mean(interval_widths)) if interval_widths else 0.0
         
         metrics = {
             "coverage_90": coverage,

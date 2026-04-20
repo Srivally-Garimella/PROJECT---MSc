@@ -149,6 +149,22 @@ python -m src.data_collection.sec_downloader --ticker AAPL --years 2022 2023
 python -m src.data_collection.xbrl_parser --ticker AAPL
 ```
 
+### Unified Ingestion (Recommended)
+
+Collect multiple sources with one command:
+
+```bash
+python scripts/ingest_all.py --all --sec-email your_email@example.com --tickers AAPL MSFT JPM
+```
+
+Optional IR discovery/download (best for a curated set of companies):
+
+```bash
+python scripts/ingest_all.py --ir --ir-download --tickers AAPL MSFT
+```
+
+Note: If your environment blocks model downloads (restricted/offline), query embeddings fall back to a deterministic hash embedding unless you set `TEMPORAL_GUARD_ALLOW_MODEL_DOWNLOAD=1`.
+
 ## 📊 Usage Examples
 
 ### Python API

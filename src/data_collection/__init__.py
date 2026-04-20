@@ -5,6 +5,7 @@ from .sec_downloader import SECDataCollector
 from .xbrl_parser import XBRLCollector
 from .stock_data import StockDataCollector
 from .transcript_scraper import TranscriptScraper
+from .ir_collector import IRDocumentCollector
 from .validate_data import validate_data_collection
 
 __all__ = [
@@ -12,5 +13,6 @@ __all__ = [
     'XBRLCollector', 
     'StockDataCollector',
     'TranscriptScraper',
+    'IRDocumentCollector',
     'validate_data_collection'
 ]

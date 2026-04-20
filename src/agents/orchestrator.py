@@ -18,6 +18,7 @@ from .calculation_agent import CalculationAgent
 from .verification_agent import VerificationAgent
 from .temporal_agent import TemporalAgent
 from .analysis_agent import FinancialAnalysisAgent
+from ..rag_system.vector_store import TemporalVectorStore
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -96,6 +97,11 @@ Keep it simple and readable."""
         self.model_name = model_name
         self.provider = provider
         self.xbrl_dir = xbrl_dir
+
+        # If a vector store isn't provided, use the local persistent one by default.
+        # This avoids the system silently falling back to mock retrieval.
+        if vector_store is None:
+            vector_store = TemporalVectorStore()
         
         # Initialize LLM for synthesis using provider factory
         self.llm = get_llm(provider=provider, model_name=model_name, temperature=0)
@@ -268,6 +274,7 @@ Keep it simple and readable."""
                 query=query,
                 ticker=ticker,
                 query_type=query_type,
+                analysis_date=analysis_date,
                 verbose=verbose,
                 progress_callback=progress_callback,
                 start_time=start_time
@@ -349,6 +356,12 @@ Keep it simple and readable."""
             stages=results['stages']
         )
         results['final_answer'] = final_answer
+        results['final'] = self._wrap_final_answer(
+            query_type=query_type,
+            analysis_date=analysis_date,
+            final_answer=final_answer,
+            stages=results.get("stages", {}),
+        )
         
         # ═══════════════════════════════════════════════════════════════
         # Finalize
@@ -369,6 +382,37 @@ Keep it simple and readable."""
             print(f"\n⏱️ Total processing time: {processing_time:.2f}s")
             
         return results
+
+    def _wrap_final_answer(self, query_type: str, analysis_date: str, final_answer: str, stages: Dict) -> Dict[str, Any]:
+        """
+        Standardize the final output envelope so the UI/report can reliably show:
+        - what kind of answer this is (fact vs calculation vs estimate)
+        - what date semantics were used
+        - any important warnings
+        """
+        answer_type_map = {
+            "historical": "reported_fact",
+            "historical_extreme": "calculated_metric",
+            "ratio": "calculated_metric",
+            "projection": "model_estimate",
+        }
+        answer_type = answer_type_map.get(query_type, "unknown")
+
+        warnings: List[str] = []
+        temporal = stages.get("temporal", {}) if isinstance(stages, dict) else {}
+        if temporal and not temporal.get("is_valid", True):
+            warnings.append("Temporal warnings/violations detected; results may not be point-in-time safe.")
+
+        doc = stages.get("document_retrieval", {}) if isinstance(stages, dict) else {}
+        if doc and doc.get("document_count", 0) == 0:
+            warnings.append("No documents retrieved for the cutoff; answer may be incomplete.")
+
+        return {
+            "answer_type": answer_type,
+            "analysis_date": analysis_date,
+            "answer": final_answer,
+            "warnings": warnings,
+        }
         
     def _run_temporal_validation(self, query: str, analysis_date: str) -> Dict:
         """Run temporal validation."""
@@ -384,7 +428,8 @@ Keep it simple and readable."""
     def _run_document_retrieval(self, query: str, ticker: str, cutoff_date: str) -> Dict:
         """Run document retrieval."""
         try:
-            result = self.document_agent.retrieve(query, ticker, cutoff_date)
+            # DocumentRetrievalAgent expects (query, cutoff_date, ticker)
+            result = self.document_agent.retrieve(query, cutoff_date, ticker)
             
             # Count documents
             if 'output' in result:
@@ -585,6 +630,7 @@ Keep it simple and readable."""
                                   query: str,
                                   ticker: str,
                                   query_type: str,
+                                  analysis_date: str,
                                   verbose: bool = True,
                                   progress_callback=None,
                                   start_time=None) -> Dict[str, Any]:
@@ -617,7 +663,7 @@ Keep it simple and readable."""
         results = {
             'query': query,
             'ticker': ticker,
-            'analysis_date': datetime.now().strftime('%Y%m%d'),
+            'analysis_date': analysis_date,
             'stages': {},
             'final_answer': None,
             'metadata': {
@@ -651,7 +697,7 @@ Keep it simple and readable."""
         update_progress(2, f"Executing {query_type.replace('_', ' ').title()} Analysis")
         
         try:
-            analysis_result = self.analysis_agent.analyze(query, ticker)
+            analysis_result = self.analysis_agent.analyze(query, ticker, analysis_date=analysis_date)
             results['stages']['analysis'] = analysis_result
             
             if verbose:
@@ -747,6 +793,12 @@ Keep it simple and readable."""
             ])
         
         results['final_answer'] = "\n".join(final_lines)
+        results['final'] = self._wrap_final_answer(
+            query_type=query_type,
+            analysis_date=analysis_date,
+            final_answer=results["final_answer"],
+            stages=results.get("stages", {}),
+        )
         
         # ═══════════════════════════════════════════════════════════════
         # Finalize
@@ -785,8 +837,8 @@ Keep it simple and readable."""
             ),
             'document': lambda: self.document_agent.retrieve(
                 kwargs.get('query', ''),
-                kwargs.get('ticker', ''),
-                kwargs.get('filing_date', '')
+                kwargs.get('filing_date', ''),
+                kwargs.get('ticker', '')
             ),
             'calculation': lambda: self.calculation_agent.calculate(
                 kwargs.get('ticker', ''),

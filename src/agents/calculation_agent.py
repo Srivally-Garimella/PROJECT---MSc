@@ -203,7 +203,8 @@ Use get_metric_value to retrieve specific values."""
 - Total Liabilities (2023-03-31): $290,020,000,000
 - Shareholders' Equity (2023-03-31): $56,727,000,000
 
-Note: This is mock data. Connect XBRL collector for real data."""
+Note: This is mock data. Connect XBRL collector for real data.
+[WARNING: MOCK DATA USED - Results are for demonstration only]"""
             
     def _get_metric_value(self, query_string: str) -> str:
         """Get specific metric value."""
@@ -263,7 +264,8 @@ Note: This is mock data. Connect XBRL collector for real data."""
         return f"""[MOCK] {metric} for {ticker}:
 - Value: ${value:,.0f}
 - As of: {date[:4]}-{date[4:6]}-{date[6:]}
-- Source: Mock XBRL data"""
+- Source: Mock XBRL data
+[WARNING: MOCK DATA USED - Results are for demonstration only]"""
         
     def _calculate_ratio(self, query_string: str) -> str:
         """Calculate financial ratio."""
@@ -288,6 +290,13 @@ Note: This is mock data. Connect XBRL collector for real data."""
         # Get component values
         num_result = self._get_metric_value(f"{ticker}|{formula['numerator']}|{date}")
         den_result = self._get_metric_value(f"{ticker}|{formula['denominator']}|{date}")
+
+        used_mock = (
+            "[WARNING: MOCK DATA USED" in num_result
+            or "[WARNING: MOCK DATA USED" in den_result
+            or num_result.strip().startswith("[MOCK")
+            or den_result.strip().startswith("[MOCK")
+        )
         
         # Extract values (simplified parsing)
         try:
@@ -306,7 +315,7 @@ Note: This is mock data. Connect XBRL collector for real data."""
             ratio = num_value / den_value
             percentage = ratio * 100
             
-            return f"""Financial Ratio Calculation for {ticker}:
+            output = f"""Financial Ratio Calculation for {ticker}:
 
 Ratio: {ratio_name}
 Formula: {formula['formula']}
@@ -320,6 +329,11 @@ Calculation:
 {num_value:,.0f} / {den_value:,.0f} = {ratio:.4f}
 
 Result: {ratio_name} = {percentage:.2f}%"""
+
+            if used_mock:
+                output += "\n[WARNING: MOCK DATA USED - Results are for demonstration only]"
+
+            return output
             
         except Exception as e:
             return f"Error calculating ratio: {e}\n\nNumerator data:\n{num_result}\n\nDenominator data:\n{den_result}"

@@ -13,10 +13,44 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 import logging
+import os
+import re
+import hashlib
 from sentence_transformers import SentenceTransformer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+class _DeterministicHashEmbedder:
+    """
+    Offline-safe embedder fallback.
+
+    Produces deterministic, normalized vectors using feature hashing.
+    This is not comparable in quality to real embeddings, but keeps the system
+    functional when the sentence-transformers model can't be loaded (e.g. no
+    network access and no local cache).
+    """
+
+    def __init__(self, dimensions: int = 384):
+        self.dimensions = int(dimensions)
+
+    def encode(self, text: str) -> np.ndarray:
+        vec = np.zeros(self.dimensions, dtype=np.float32)
+        tokens = re.findall(r"[A-Za-z0-9_]+", (text or "").lower())
+        if not tokens:
+            return vec
+
+        for token in tokens[:500]:
+            digest = hashlib.sha256(token.encode("utf-8")).digest()
+            idx = int.from_bytes(digest[:4], "little") % self.dimensions
+            sign = -1.0 if (digest[4] & 1) else 1.0
+            vec[idx] += sign
+
+        norm = float(np.linalg.norm(vec))
+        if norm > 0:
+            vec /= norm
+        return vec
 
 
 class TemporalVectorStore:
@@ -45,9 +79,12 @@ class TemporalVectorStore:
         self.persist_dir = Path(persist_dir)
         self.persist_dir.mkdir(parents=True, exist_ok=True)
         
-        # Initialize embedding model for queries
-        logger.info(f"Loading embedding model: {embedding_model}")
-        self.embedder = SentenceTransformer(embedding_model)
+        # Initialize embedding model for queries.
+        # Prefer local cache when running in restricted/offline environments.
+        self.embedder = None
+        self.embedding_model = embedding_model
+        self.embedding_dim = int(os.getenv("TEMPORAL_GUARD_EMBED_DIM", "384"))
+        self._init_embedder()
         
         # Initialize ChromaDB client with persistence
         self.client = chromadb.PersistentClient(path=str(self.persist_dir))
@@ -64,6 +101,23 @@ class TemporalVectorStore:
         logger.info(f"Persist dir: {self.persist_dir}")
         logger.info(f"Collection: {collection_name}")
         logger.info(f"Current count: {self.collection.count()}")
+
+    def _init_embedder(self):
+        allow_download = os.getenv("TEMPORAL_GUARD_ALLOW_MODEL_DOWNLOAD", "").strip() in {"1", "true", "yes"}
+        logger.info(f"Loading embedding model: {self.embedding_model}")
+        try:
+            # Default to local-only to avoid long network hangs; allow override via env var.
+            self.embedder = SentenceTransformer(
+                self.embedding_model,
+                local_files_only=not allow_download,
+            )
+            return
+        except Exception as e:
+            logger.warning(f"Could not load SentenceTransformer model ({self.embedding_model}): {e}")
+
+        # Fallback embedder keeps the system running offline.
+        logger.warning("Falling back to deterministic hash embeddings (offline-safe, lower quality retrieval).")
+        self.embedder = _DeterministicHashEmbedder(dimensions=self.embedding_dim)
         
     def add_chunks_with_temporal_metadata(self,
                                          chunks_path: str = "data/processed/chunks/temporal_chunks.jsonl",
@@ -218,7 +272,9 @@ class TemporalVectorStore:
             if query_embeddings:
                 embeddings_to_use = query_embeddings
             else:
-                # Use our sentence-transformers model for query embedding
+                # Use the configured embedder for query embedding (may be fallback embedder).
+                if self.embedder is None:
+                    raise RuntimeError("Embedder not initialized")
                 embeddings_to_use = self.embedder.encode(query).tolist()
             
             results = self.collection.query(

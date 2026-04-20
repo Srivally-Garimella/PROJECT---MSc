@@ -47,6 +47,11 @@ def get_llm(
             logger.info("No OpenAI API key, using Ollama (local)")
     
     if provider == "openai":
+        if not os.getenv("OPENAI_API_KEY"):
+            raise ValueError(
+                "OPENAI_API_KEY is not set but provider='openai' was requested. "
+                "Set OPENAI_API_KEY or omit provider to auto-select."
+            )
         from langchain_openai import ChatOpenAI
         model = model_name or DEFAULT_OPENAI_MODEL
         logger.info(f"Initializing OpenAI LLM: {model}")

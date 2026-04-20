@@ -8,7 +8,7 @@ A comprehensive agent that handles:
 - Valuation analysis (DCF, comparable analysis)
 """
 
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime
 import json
 import logging
@@ -95,6 +95,9 @@ When asked about future metrics:
         
         # Initialize LLM
         self.llm = get_llm(provider=provider, model_name=model_name, temperature=0)
+
+        # Request-scoped context (set per analyze call)
+        self._analysis_date: Optional[str] = None
         
         # Create tools
         self._setup_tools()
@@ -210,6 +213,37 @@ When asked about future metrics:
             get_market_data,
             list_available_metrics
         ]
+
+    def _analysis_year_cutoff(self) -> Optional[int]:
+        """
+        Conservative as-of cutoff for annual metrics.
+
+        If analysis_date is set (YYYYMMDD), we only use historical years <= (analysis_year - 1)
+        to reduce look-ahead leakage when users ask "as of" a date within a year.
+        """
+        if not self._analysis_date:
+            return None
+        try:
+            year = int(str(self._analysis_date)[:4])
+            return year - 1
+        except Exception:
+            return None
+
+    def _filter_history_asof(self, history: List[Tuple[int, float]]) -> List[Tuple[int, float]]:
+        cutoff = self._analysis_year_cutoff()
+        if cutoff is None:
+            return history
+        filtered = [(int(y), v) for y, v in history if int(y) <= cutoff]
+        return filtered
+
+    def _latest_value_asof(self, ticker: str, metric: str) -> Tuple[Optional[int], Optional[float]]:
+        history_raw = self.data_loader.get_metric_history(ticker, metric)
+        history = [(int(y), v) for y, v in history_raw] if history_raw else []
+        history = self._filter_history_asof(history)
+        if not history:
+            return None, None
+        year, value = max(history, key=lambda x: x[0])
+        return year, value
     
     # ═══════════════════════════════════════════════════════════════════
     # TOOL IMPLEMENTATIONS
@@ -286,13 +320,17 @@ When asked about future metrics:
         std_metric = metric_map.get(metric.lower(), metric)
         
         # Load historical data
-        history = self.data_loader.get_metric_history(ticker, std_metric)
+        history_raw = self.data_loader.get_metric_history(ticker, std_metric)
+        history = [(int(y), v) for y, v in history_raw] if history_raw else []
+        history = self._filter_history_asof(history)
         
         if not history:
             # Try to calculate FCF from OCF and CapEx
             if std_metric in ["FreeCashFlow", "FCF"]:
-                ocf_history = self.data_loader.get_metric_history(ticker, "OperatingCashFlow")
-                capex_history = self.data_loader.get_metric_history(ticker, "CapitalExpenditures")
+                ocf_history_raw = self.data_loader.get_metric_history(ticker, "OperatingCashFlow")
+                capex_history_raw = self.data_loader.get_metric_history(ticker, "CapitalExpenditures")
+                ocf_history = self._filter_history_asof([(int(y), v) for y, v in ocf_history_raw]) if ocf_history_raw else []
+                capex_history = self._filter_history_asof([(int(y), v) for y, v in capex_history_raw]) if capex_history_raw else []
                 
                 if ocf_history and capex_history:
                     # Calculate FCF = OCF - CapEx
@@ -403,7 +441,9 @@ When asked about future metrics:
         std_metric = metric_map.get(metric.lower(), metric)
         
         # Load data
-        history = self.data_loader.get_metric_history(ticker, std_metric)
+        history_raw = self.data_loader.get_metric_history(ticker, std_metric)
+        history = [(int(y), v) for y, v in history_raw] if history_raw else []
+        history = self._filter_history_asof(history)
         
         if not history:
             return f"No historical data found for {std_metric} for {ticker}"
@@ -426,12 +466,9 @@ When asked about future metrics:
         ticker, ratio_name = [p.strip() for p in parts]
         ticker = ticker.upper()
         
-        # Load required data
-        data = self.data_loader.load_company_data(ticker)
-        
         def get_latest_value(metric: str) -> float:
-            year, value = self.data_loader.get_latest_value(ticker, metric)
-            return value or 0
+            _, value = self._latest_value_asof(ticker, metric)
+            return float(value or 0.0)
         
         ratio_lower = ratio_name.lower()
         
@@ -506,7 +543,9 @@ When asked about future metrics:
         ticker, metric = [p.strip() for p in parts]
         ticker = ticker.upper()
         
-        history = self.data_loader.get_metric_history(ticker, metric)
+        history_raw = self.data_loader.get_metric_history(ticker, metric)
+        history = [(int(y), v) for y, v in history_raw] if history_raw else []
+        history = self._filter_history_asof(history)
         
         if not history:
             return f"No data found for {metric} for {ticker}"
@@ -529,7 +568,9 @@ When asked about future metrics:
             return f"Invalid year: {target_year}"
         
         # Load data
-        history = self.data_loader.get_metric_history(ticker, metric)
+        history_raw = self.data_loader.get_metric_history(ticker, metric)
+        history = [(int(y), v) for y, v in history_raw] if history_raw else []
+        history = self._filter_history_asof(history)
         
         if not history:
             return f"No data found for {metric} for {ticker}"
@@ -559,8 +600,10 @@ When asked about future metrics:
         ticker = ticker.strip().upper()
         
         # Get required data
-        ocf_history = self.data_loader.get_metric_history(ticker, "OperatingCashFlow")
-        capex_history = self.data_loader.get_metric_history(ticker, "CapitalExpenditures")
+        ocf_history_raw = self.data_loader.get_metric_history(ticker, "OperatingCashFlow")
+        capex_history_raw = self.data_loader.get_metric_history(ticker, "CapitalExpenditures")
+        ocf_history = self._filter_history_asof([(int(y), v) for y, v in ocf_history_raw]) if ocf_history_raw else []
+        capex_history = self._filter_history_asof([(int(y), v) for y, v in capex_history_raw]) if capex_history_raw else []
         
         if not ocf_history:
             return f"Insufficient data for DCF valuation of {ticker}"
@@ -581,14 +624,35 @@ When asked about future metrics:
         else:
             # Use reported shares if available
             shares = 15e9  # Default estimate
-            year, reported_shares = self.data_loader.get_latest_value(ticker, "SharesOutstanding")
+            _, reported_shares = self._latest_value_asof(ticker, "SharesOutstanding")
             if reported_shares:
                 shares = reported_shares
         
-        # DCF assumptions
-        growth_rate = 0.08  # 8% growth
-        terminal_growth = 0.025  # 2.5% perpetual growth
-        discount_rate = 0.10  # 10% WACC
+        # DCF assumptions - Dynamic Estimation
+        # 1. Estimate Growth Rate from historical FCF trend
+        historical_fcf = []
+        capex_dict = dict(capex_history)
+        for year, ocf in ocf_history:
+            if year in capex_dict:
+                historical_fcf.append((int(year), ocf - abs(capex_dict[year])))
+        
+        if len(historical_fcf) >= 3:
+            trend = self.historical_analyzer.analyze_trend(historical_fcf, "Free Cash Flow", ticker)
+            # Cap growth between 0% and 15% for conservative DCF
+            growth_rate = max(0.02, min(0.15, trend.context.get("cagr", 8.0) / 100))
+            growth_method = f"Estimated from {len(historical_fcf)}-year CAGR"
+        else:
+            growth_rate = 0.07  # Conservative default
+            growth_method = "Default (insufficient history)"
+
+        # 2. Terminal Growth (typically 2-3% reflecting long-term GDP growth)
+        terminal_growth = 0.025
+
+        # 3. Discount Rate (WACC) - Defaulting to 9% for tech, 8% otherwise
+        # Future: Estimate from Beta and Risk-Free Rate
+        is_tech = any(t in ticker for t in ['AAPL', 'MSFT', 'NVDA', 'GOOGL', 'META'])
+        discount_rate = 0.09 if is_tech else 0.08
+        rate_method = "Sector-adjusted average"
         
         # Calculate DCF
         dcf_result = self.projection_engine.dcf_valuation(
@@ -605,9 +669,9 @@ When asked about future metrics:
             "",
             "📈 Inputs:",
             f"  Current FCF: ${current_fcf/1e9:.2f}B",
-            f"  Growth Rate (5yr): {growth_rate*100:.0f}%",
+            f"  Growth Rate (5yr): {growth_rate*100:.1f}% ({growth_method})",
             f"  Terminal Growth: {terminal_growth*100:.1f}%",
-            f"  Discount Rate (WACC): {discount_rate*100:.0f}%",
+            f"  Discount Rate (WACC): {discount_rate*100:.1f}% ({rate_method})",
             "",
             "💰 Valuation:",
             f"  PV of FCFs: ${dcf_result['pv_of_fcfs']/1e9:.2f}B",
@@ -711,7 +775,7 @@ When asked about future metrics:
     # MAIN ANALYSIS METHOD
     # ═══════════════════════════════════════════════════════════════════
     
-    def analyze(self, query: str, ticker: str = None) -> Dict[str, Any]:
+    def analyze(self, query: str, ticker: str = None, analysis_date: Optional[str] = None) -> Dict[str, Any]:
         """
         Process a financial analysis query.
         
@@ -723,6 +787,7 @@ When asked about future metrics:
             Analysis results
         """
         start_time = datetime.now()
+        self._analysis_date = analysis_date
         
         # Try to extract ticker from query if not provided
         if not ticker:
@@ -735,6 +800,7 @@ When asked about future metrics:
                 input_message = f"""Analyze this financial query:
 Query: {query}
 Ticker: {ticker or 'Please identify from query'}
+Analysis Date (as-of): {analysis_date or 'N/A'}
 
 Use the available tools to gather data and provide a comprehensive analysis.
 For projections, use multiple methods and provide ranges.

@@ -118,16 +118,22 @@ class HealthResponse(BaseModel):
 # ═══════════════════════════════════════════════════════════════
 
 orchestrator = None
+vector_store = None
 audit_logger = None
 
 
 def get_orchestrator():
     """Get or initialize orchestrator."""
-    global orchestrator
+    global orchestrator, vector_store
     if orchestrator is None:
         try:
+            # Use the persisted local vector store by default so retrieval works out of the box.
+            if vector_store is None:
+                from src.rag_system.vector_store import TemporalVectorStore
+                vector_store = TemporalVectorStore()
+
             from src.agents.orchestrator import MultiAgentOrchestrator
-            orchestrator = MultiAgentOrchestrator()
+            orchestrator = MultiAgentOrchestrator(vector_store=vector_store)
             logger.info("Orchestrator initialized")
         except Exception as e:
             logger.error(f"Could not initialize orchestrator: {e}")
